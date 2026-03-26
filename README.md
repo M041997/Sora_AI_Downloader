@@ -13,7 +13,7 @@ Small Windows desktop app to bulk-download **videos** and **thumbnails** from:
 
 ### Run (dev)
 
-From `C:\Users\User\sora-bulk-downloader`:
+From your project folder (for example `C:\path\to\sora-bulk-downloader`):
 
 ```powershell
 dotnet run --project .\SoraBulkDownloader.App\SoraBulkDownloader.App.csproj
