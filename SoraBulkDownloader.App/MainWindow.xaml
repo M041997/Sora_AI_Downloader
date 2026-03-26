@@ -1,0 +1,176 @@
+<Window x:Class="SoraBulkDownloader.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SoraBulkDownloader.App"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        mc:Ignorable="d"
+        Title="Sora Bulk Downloader" Height="840" Width="1280"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="#E5E7EB"/>
+            <Setter Property="BorderBrush" Value="#374151"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#374151"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#6B7280"/>
+                    <Setter Property="BorderBrush" Value="#1F2937"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#E5E7EB"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="#0B1220"/>
+            <Setter Property="Foreground" Value="#D1D5DB"/>
+            <Setter Property="BorderBrush" Value="#1F2937"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="#0B1220"/>
+            <Setter Property="AlternatingRowBackground" Value="#111827"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#1F2937"/>
+            <Setter Property="VerticalGridLinesBrush" Value="#1F2937"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="BorderBrush" Value="#374151"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#1D4ED8"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ProgressBar">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="#3B82F6"/>
+            <Setter Property="BorderBrush" Value="#374151"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#0B1220">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="220"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Toolbar ── -->
+        <Border Grid.Row="0" Padding="10,8,10,8" Background="#111827" BorderBrush="#1F2937" BorderThickness="0,0,0,1">
+            <StackPanel>
+
+                <!-- Row 1: Navigation + folder -->
+                <DockPanel Margin="0,0,0,7">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <Button x:Name="GoDraftsButton"  Content="Go: Drafts"  Margin="0,0,6,0" ToolTip="Navigate to your Sora Drafts page" Click="GoDraftsButton_OnClick"/>
+                        <Button x:Name="GoProfileButton" Content="Go: Profile" Margin="0,0,14,0" ToolTip="Navigate to your Sora Profile page" Click="GoProfileButton_OnClick"/>
+
+                        <Rectangle Width="1" Fill="#374151" Margin="0,0,14,0" VerticalAlignment="Stretch"/>
+
+                        <Button x:Name="PickFolderButton" Content="Output folder…" Margin="0,0,6,0" ToolTip="Choose where downloaded files will be saved" Click="PickFolderButton_OnClick"/>
+                        <TextBlock x:Name="OutputFolderText" Foreground="#9CA3AF" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" Width="340" FontSize="12"/>
+                        <Button x:Name="OpenFolderButton" Content="Open ↗" Margin="6,0,0,0" ToolTip="Open output folder in Explorer" Click="OpenFolderButton_OnClick"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- Row 2: Actions -->
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                        <CheckBox x:Name="IncludeVideosCheck" Content="Videos"     IsChecked="True" Margin="0,0,12,0"/>
+                        <CheckBox x:Name="IncludeThumbsCheck" Content="Thumbnails" IsChecked="True" Margin="0,0,14,0"/>
+                        <Rectangle Width="1" Fill="#374151" Margin="0,0,14,0" VerticalAlignment="Stretch"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                        <Button x:Name="ScanButton"          Content="Scan page"               Margin="0,0,6,0"  ToolTip="Auto-scroll the current page and collect media URLs" Click="ScanButton_OnClick"/>
+                        <Button x:Name="DownloadButton"      Content="Download"                Margin="0,0,6,0"  ToolTip="Download all queued items" IsEnabled="False" Click="DownloadButton_OnClick"/>
+                        <Button x:Name="CancelDownloadButton" Content="Cancel"                 Margin="0,0,6,0"  ToolTip="Cancel in-progress downloads" IsEnabled="False" Click="CancelDownloadButton_OnClick"/>
+                        <Button x:Name="RetryFailedButton"   Content="Retry Failed"            Margin="0,0,14,0" ToolTip="Re-attempt all failed downloads" IsEnabled="False" Click="RetryFailedButton_OnClick"/>
+                        <Button x:Name="ResumeDownloadButton" Content="▶ Resume (re-login first)" Margin="0,0,14,0"
+                                Background="#7C3AED" BorderBrush="#6D28D9"
+                                ToolTip="Your session expired. Log in above then click here."
+                                Visibility="Collapsed" Click="ResumeDownloadButton_OnClick"/>
+
+                        <Rectangle Width="1" Fill="#374151" Margin="0,0,14,0" VerticalAlignment="Stretch"/>
+
+                        <Button x:Name="DownloadAllButton"     Content="Download all (Drafts/Likes/Posts)" Margin="0,0,6,0"  ToolTip="Scan and download all three sections automatically" Click="DownloadAllButton_OnClick"/>
+                        <Button x:Name="ExportUrlsButton"      Content="Export URLs"                       Margin="0,0,6,0"  ToolTip="Export queue as JSON + CSV, and copy URLs to clipboard" Click="ExportUrlsButton_OnClick"/>
+                        <Button x:Name="CollectDraftUrlsButton" Content="Collect Draft URLs (loop)"        Margin="0,0,0,0"  ToolTip="Continuously scroll the Drafts page collecting URLs until nothing new appears" Click="CollectDraftUrlsButton_OnClick"/>
+                    </StackPanel>
+                </DockPanel>
+
+            </StackPanel>
+        </Border>
+
+        <!-- ── Browser ── -->
+        <Grid Grid.Row="1">
+            <wv2:WebView2 x:Name="Browser"/>
+        </Grid>
+
+        <!-- ── Queue ── -->
+        <Border Grid.Row="2" Padding="10" Background="#0B1220" BorderBrush="#1F2937" BorderThickness="0,1,0,1">
+            <DockPanel LastChildFill="True">
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                    <TextBlock Foreground="#E5E7EB" FontWeight="SemiBold" DockPanel.Dock="Left" VerticalAlignment="Center">Queue</TextBlock>
+                    <TextBlock x:Name="QueueSummaryText" Foreground="#6B7280" FontSize="12" Margin="10,0,0,0" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                </DockPanel>
+                <DataGrid x:Name="QueueGrid"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          RowHeaderWidth="0"
+                          SelectionMode="Extended"
+                          SelectionUnit="FullRow">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Section"  Binding="{Binding Section}"      Width="80"/>
+                        <DataGridTextColumn Header="Type"     Binding="{Binding Kind}"         Width="80"/>
+                        <DataGridTextColumn Header="Status"   Binding="{Binding Status}"       Width="100"/>
+                        <DataGridTextColumn Header="Progress" Binding="{Binding ProgressText}" Width="160"/>
+                        <DataGridTextColumn Header="Speed"    Binding="{Binding Speed}"        Width="100"/>
+                        <DataGridTextColumn Header="File"     Binding="{Binding FilePath}"     Width="*"/>
+                        <DataGridTextColumn Header="URL"      Binding="{Binding Url}"          Width="2*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <!-- ── Status bar ── -->
+        <Border Grid.Row="3" Padding="10,8" Background="#111827">
+            <DockPanel LastChildFill="True">
+                <ProgressBar x:Name="OverallProgress" Width="200" Height="14" Minimum="0" Maximum="100" Value="0" DockPanel.Dock="Left" Margin="0,0,10,0"/>
+                <TextBlock x:Name="StatusText" Foreground="#9CA3AF" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

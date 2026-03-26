@@ -1,0 +1,23 @@
+# Build output
+bin/
+obj/
+
+# User/IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userprefs
+
+# Logs and temp files
+*.log
+*.tmp
+*.cache
+
+# WebView2 runtime/profile data can contain local browsing state
+*.exe.WebView2/
+
+# NuGet and package artifacts
+packages/
+*.nupkg
+
